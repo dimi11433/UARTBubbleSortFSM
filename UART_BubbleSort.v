@@ -6,6 +6,4 @@ module UART(
 
 
 );
-
-
 endmodule;

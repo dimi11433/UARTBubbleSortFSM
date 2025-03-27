@@ -23,7 +23,7 @@ module uart_rx(
 
     always@(posedge i_clock)begin
         r_Rx_DATA_p <= i_Rx_serial;
-        r_Rx_Data <= r_Rx_DATA_p
+        r_Rx_Data <= r_Rx_DATA_p;
     end
     
 
@@ -70,13 +70,8 @@ module uart_rx(
                             r_Bit_Index <= r_Bit_Index +1;
                             r_SM_Main <= s_RX_DATA_BITS;
                     end 
-
-
-
-
-            
+                    end
+                end
         endcase 
-
     end 
-
 endmodule 
