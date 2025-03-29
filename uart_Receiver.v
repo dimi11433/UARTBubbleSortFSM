@@ -1,27 +1,27 @@
 module uart_rx(
-    #(parameter CLKS_PER_BIT)
-    input i_clock,
-    input i_Rx_serial,
-    output o_Rx_DV,
-    output [7:0] o_Rx_byte,
+    #(parameter CLKS_PER_BIT) //The amount of clicks per bit i guess its given in the name this needs to be set
+    input i_clock, //Internal Clock to keep track
+    input i_Rx_serial,//Input bit 
+    output o_Rx_DV,//Output bit that says whether the data is valid to be recieved or not
+    output [7:0] o_Rx_byte,//Output the byte 
 );
-    parameter s_IDLE = 3'b000;
-    parameter s_RX_START_BIT = 3'b001;
-    parameter s_RX_DATA_BITS = 3'b010;
-    parameter s_RX_STOP_BIT = 3'b011;
-    parameter s_CLEAN_UP = 3'b100;
+    parameter s_IDLE = 3'b000; // Idle state 
+    parameter s_RX_START_BIT = 3'b001; //Start bit state
+    parameter s_RX_DATA_BITS = 3'b010; //Data bit state
+    parameter s_RX_STOP_BIT = 3'b011; //Stop bit state
+    parameter s_CLEAN_UP = 3'b100; //Clean up bit state 
 
-    reg r_Rx_DATA_p = 1'b1;
-    reg r_Rx_Data = 1'b1;
+    reg r_Rx_DATA_p = 1'b1; //internal register to get value being inputed 
+    reg r_Rx_Data = 1'b1; //internal register that saves that value 
 
-    reg [7:0] r_Clock_Count = 0;
-    reg [2:0] r_Bit_Index = 0;
-    reg [7:0] r_Rx_Byte = 0;
-    reg r_Rx_DV = 0;
-    reg [2:0] r_SM_Main = 0;
+    reg [7:0] r_Clock_Count = 0; //This counts the number of clock cycles, when it equals clicks per bit we move on 
+    reg [2:0] r_Bit_Index = 0; // Gives what index of the bit we are at
+    reg [7:0] r_Rx_Byte = 0; //This is the internal register that stores the byte
+    reg r_Rx_DV = 0; //The stores whether the value is okay to recieve or not
+    reg [2:0] r_SM_Main = 0; //The is used to evaluate which state we are on 
 
 
-    always@(posedge i_clock)begin
+    always@(posedge i_clock)begin  //Essentially a register that stores the value 
         r_Rx_DATA_p <= i_Rx_serial;
         r_Rx_Data <= r_Rx_DATA_p;
     end
