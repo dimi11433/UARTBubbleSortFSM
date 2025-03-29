@@ -1,25 +1,25 @@
 module uart_tx(
-    #(parameter CLKS_PER_BIT)
-    input i_Clock,
-    input i_Tx_DV,
-    input [7:0] i_Tx_Byte,
-    output o_Tx_Active,
-    output reg o_Tx_Bit,
-    output o_Tx_Done
+    #(parameter CLKS_PER_BIT) //Sets the amount of r_Clocks you need before it counts as one clockcycle
+    input i_Clock, //Internal clock can be calculated based on the device you're usuing
+    input i_Tx_DV, //This says if the data recieved is valid or not
+    input [7:0] i_Tx_Byte, //This is the 8 bit data recieved from the Rx
+    output o_Tx_Active, //This outputs whether we are actively transmitting or not
+    output reg o_Tx_Bit, //This outputs the bit back to Rx
+    output o_Tx_Done //This says when were done transmitting
 );
 
-    parameter s_IDLE = 3'b000;
-    parameter s_TX_START_BIT = 3'b001;
-    parameter s_TX_DATA_BITS = 3'b010;
-    parameter s_TX_STOP_BIT = 3'b011;
-    parameter s_CLEAN_UP = 3'b100;
+    parameter s_IDLE = 3'b000; //Idle state
+    parameter s_TX_START_BIT = 3'b001; //Start bit state
+    parameter s_TX_DATA_BITS = 3'b010; //Data bit state
+    parameter s_TX_STOP_BIT = 3'b011; //Stop bit state
+    parameter s_CLEAN_UP = 3'b100; //Clean up state
 
-    reg [7:0]   r_Clock_Count = 0;
-    reg [2:0]   r_Bit_Index = 0;
-    reg [7:0]   r_Tx_Data = 0;
-    reg [2:0]   r_SM_Main = 0;
-    reg         r_Tx_Done = 0;
-    reg         r_Tx_Active = 0;
+    reg [7:0]   r_Clock_Count = 0; //8 bit clock cycle counter
+    reg [2:0]   r_Bit_Index = 0;//THis keeps track of the index
+    reg [7:0]   r_Tx_Data = 0; //This register stores the data recived from input so incase we get new data we have this saved
+    reg [2:0]   r_SM_Main = 0; //The state machine
+    reg         r_Tx_Done = 0; //This says when were done transmitting register
+    reg         r_Tx_Active = 0;//The says when we are actively transmitting
 
     always@(posedge i_Clock)begin
         case(r_SM_Main)
