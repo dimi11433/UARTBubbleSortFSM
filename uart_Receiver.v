@@ -69,9 +69,35 @@ module uart_rx(
                         if(r_Bit_Index < 7)begin
                             r_Bit_Index <= r_Bit_Index +1;
                             r_SM_Main <= s_RX_DATA_BITS;
-                    end 
+                        end
+                        else begin 
+                            r_Bit_Index <= 0;
+                            r_SM_Main <= s_RX_STOP_BIT;
+                        end  
                     end
                 end
+            s_RX_STOP_BIT:
+                begin
+                    if(r_Clock_Count < CLKS_PER_BIT - 1)begin 
+                        r_Clock_Count <= r_Clock_Count + 1;
+                        r_SM_Main <= s_RX_STOP_BIT;
+                    end 
+                    else begin 
+                        r_Rx_DV <= 1'b1;
+                        r_Clock_Count <= 0;
+                        r_SM_Main <= s_CLEAN_UP;
+                    end 
+                end 
+            s_CLEAN_UP:
+                begin
+                    r_SM_Main <= s_IDLE;
+                    r_Rx_DV <= 1'b0;
+                end 
+            default:
+                r_SM_Main <= s_IDLE;
+
         endcase 
     end 
+    assign o_Rx_DV <= r_Rx_DV;
+    assign o_Rx_byte <= r_Rx_Byte;
 endmodule 
