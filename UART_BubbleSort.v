@@ -69,10 +69,6 @@ module UART(
             i_Tx_DV = 0;
             end 
         end 
-    endtask 
-
-    
-
-    
+    endtask   
 
 endmodule;
