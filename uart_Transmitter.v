@@ -32,7 +32,7 @@ module uart_tx(
                     if(i_Tx_DV == 1'b1)begin
                         r_Tx_Data <= i_Tx_Byte;
                         r_Tx_Active <= 1;
-                        r_SM_Main <= s_RX_START_BIT;
+                        r_SM_Main <= s_TX_START_BIT;
                     end 
                     else begin
                         r_SM_Main <= S_IDLE;
@@ -43,7 +43,7 @@ module uart_tx(
                     o_Tx_Bit <= 1'b0
 
                     if(r_Clock_Count < CLKS_PER_BIT -1)begin
-                        r_Clock_Count <= r_Clock_Count + 1
+                        r_Clock_Count <= r_Clock_Count + 1;
                         r_SM_Main <= s_TX_START_BIT;
                     end 
                     else begin
@@ -53,20 +53,20 @@ module uart_tx(
                 end 
             s_TX_DATA_BITS:
                 begin
-                    o_Tx_Bit <= r_Rx_Data[r_Bit_Index];
+                    o_Tx_Bit <= r_Tx_Data[r_Bit_Index];
 
                     if(r_Clock_Count < CLKS_PER_BIT - 1)begin
                         r_Clock_Count <= r_Clock_Count + 1;
-                        r_SM_Main <= s_RX_DATA_BITS;
+                        r_SM_Main <= s_TX_DATA_BITS;
                     end 
                     else begin
                         r_Clock_Count <= 0;
                         if(r_Bit_Index < 7)begin
-                            r_Bit_Index <= r_Bit_Index + 1
+                            r_Bit_Index <= r_Bit_Index + 1;
                             r_SM_Main <= s_TX_DATA_BITS;
                         end
                         else begin
-                            r_SM_Main <= s_RX_STOP_BIT;
+                            r_SM_Main <= s_TX_STOP_BIT;
                             r_Bit_Index <= 0;
                         end 
                     end          
@@ -76,7 +76,7 @@ module uart_tx(
                     o_Tx_Bit <= 1'b0;
                     if(r_Clock_Count < CLKS_PER_BIT - 1)begin 
                         r_Clock_Count <= r_Clock_Count + 1;
-                        r_SM_Main <= s_RX_STOP_BIT;
+                        r_SM_Main <= s_TX_STOP_BIT;
                     end 
                     else begin
                         r_Tx_Active <= 1'b0;
@@ -94,8 +94,8 @@ module uart_tx(
                 r_SM_Main <= s_IDLE;
         endcase 
     end 
-    assign o_Tx_Active <= r_Tx_Active;
-    assign o_Tx_Done <= r_Tx_Done;
+    assign o_Tx_Active = r_Tx_Active;
+    assign o_Tx_Done = r_Tx_Done;
     
 
 
