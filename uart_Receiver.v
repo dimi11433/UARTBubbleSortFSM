@@ -1,9 +1,9 @@
-module uart_rx(
-    #(parameter CLKS_PER_BIT = 87) //The amount of clicks per bit i guess its given in the name this needs to be set
+module uart_rx #(parameter CLKS_PER_BIT = 57)(
+     //The amount of clicks per bit i guess its given in the name this needs to be set
     input i_clock, //Internal Clock to keep track
     input i_Rx_serial,//Input bit 
-    output o_Rx_DV,//Output bit that says whether the data is valid to be recieved or not
-    output [7:0] o_Rx_byte,//Output the byte 
+    output o_Rx_DV,//Output bit that says whether the data is valid to be received or not
+    output [7:0] o_Rx_byte//Output the byte 
 );
     localparam s_IDLE = 3'b000; // Idle state 
     localparam s_RX_START_BIT = 3'b001; //Start bit state
@@ -38,7 +38,7 @@ module uart_rx(
                 
                 if(r_Rx_Data == 1'b0)
                     r_SM_Main <= s_RX_START_BIT;
-                else  
+                else
                     r_SM_Main <= s_IDLE;
                 end 
             s_RX_START_BIT:
@@ -58,7 +58,7 @@ module uart_rx(
                 end 
             s_RX_DATA_BITS:
                 begin
-                    if(r_Clock_Count < CLKS_PER_BIT - 1)begin
+                    if(r_Clock_Count < CLKS_PER_BIT)begin
                         r_SM_Main <= s_RX_DATA_BITS;
                         r_Clock_Count <= 1 + r_Clock_Count;
                     end 
@@ -78,7 +78,7 @@ module uart_rx(
                 end
             s_RX_STOP_BIT:
                 begin
-                    if(r_Clock_Count < CLKS_PER_BIT - 1)begin 
+                    if(r_Clock_Count < CLKS_PER_BIT)begin 
                         r_Clock_Count <= r_Clock_Count + 1;
                         r_SM_Main <= s_RX_STOP_BIT;
                     end 
@@ -98,6 +98,6 @@ module uart_rx(
 
         endcase 
     end 
-    assign o_Rx_DV <= r_Rx_DV;
-    assign o_Rx_byte <= r_Rx_Byte;
+    assign o_Rx_DV = r_Rx_DV;
+    assign o_Rx_byte = r_Rx_Byte;
 endmodule 
