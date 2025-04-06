@@ -1,6 +1,6 @@
 `timescale 1ns/10ps
-`include "uart_Receiver.v"
-`include "uart_Transmitter.v"
+//`include "uart_Receiver.v"
+//`include "uart_Transmitter.v"
 
 module uart_tb();
 
@@ -8,9 +8,9 @@ module uart_tb();
     // Want to interface to 115200 baud UART
     // 10000000 / 115200 = 87 Clocks Per Bit.
 
-    parameter c_Clock_Cycle_Time = 100;
-    parameter c_CLKS_PER_BIT = 87;
-    parameter c_Bit_Period = 8600; // 1/ baud rate is 1/115200 8.68 micro seconds 
+    parameter c_Clock_Cycle_Time = 64;
+    //parameter c_CLKS_PER_BIT = 87;
+    parameter c_Bit_Period = 3648; // 1/ baud rate is 1/115200 8.68 micro seconds 
 
     reg r_Clock = 0;
     reg r_Rx_Serial = 1;
@@ -19,14 +19,16 @@ module uart_tb();
     wire w_Tx_Done;
     reg [7:0] r_Tx_Byte = 0;
 
-    uart_rx uart_r #(.CLKS_PER_BIT(c_CLKS_PER_BIT))(
+    uart_rx uart_RX_tb
+    (
         .i_clock(r_Clock),
         .i_Rx_serial(r_Rx_Serial),
-        .o_Rx_DV()
+        .o_Rx_DV(),
         .o_Rx_byte(w_Rx_Byte)
     );
 
-    uart_tx uart_t #(.CLKS_PER_BIT(c_CLKS_PER_BIT))(
+    uart_tx uart_TX_tb
+    (
         .i_Clock(r_Clock),
         .i_Tx_DV(r_Tx_DV),
         .i_Tx_Byte(r_Tx_Byte),
@@ -43,17 +45,17 @@ module uart_tb();
             //Send Start Data
             r_Rx_Serial <= 1'b0;
             #(c_Bit_Period)
-            #1000;
+            //#1000;
             //Send data bits
-            for(i = 0; i < 8; i = i + 1)begin 
+            for(i = 0; i < 8; i = i + 1)
                 begin
                     r_Rx_Serial <= i_Data[i];
-                    #(c_Bit_Period)
+                    #(c_Bit_Period);
                 end
-            end 
+            
             //Send stop bit
             r_Rx_Serial <= 1'b1;
-            #(c_Bit_Period)
+            #(c_Bit_Period);
         end 
     endtask 
 
@@ -61,31 +63,24 @@ module uart_tb();
         #(c_Clock_Cycle_Time/2) r_Clock <= !r_Clock;
     
     initial 
-        begin 
-            @(posedge r_Clock);
-            @(posedge r_Clock);
-            r_Tx_Dv = 1'b1;
-            r_Tx_Byte = 8'hAB;
-            @(posedge r_Clock);
-            r_Tx_DV = 1'b0;
-            @(posedge w_Tx_Done);
+    begin 
+        @(posedge r_Clock);
+        @(posedge r_Clock);
+        r_Tx_DV = 1'b1;
+        r_Tx_Byte = 8'hAB;
+        @(posedge r_Clock);
+        r_Tx_DV = 1'b0;
+        @(posedge w_Tx_Done);
 
-            @(posedge r_Clock);
-            UART_WRITE_BYTE(8'h3F);
-            @(posedge r_Clock);
+        @(posedge r_Clock);
+        UART_WRITE_BYTE(8'h3F);
+        @(posedge r_Clock);
 
-            if(w_Rx_Byte == 8'h3F)begin
-                $display ("Test Passed - Correct Byte Recieved");
-            end 
-            else begin
-                $display("Test Failed- Incorrect Byte Recieved");
-            end 
-
-
-    end 
-
-
-
-
-
+        if(w_Rx_Byte == 8'h3F)begin
+            $display ("Test Passed - Correct Byte Recieved");
+        end 
+        else begin
+            $display("Test Failed- Incorrect Byte Recieved");
+        end 
+ end 
 endmodule 
